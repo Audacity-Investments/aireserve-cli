@@ -1,0 +1,28 @@
+# Minimal PR gate (AIR-1097). This repo hosts release artifacts only:
+# binaries are built in the private monorepo (release-cli.yml) and
+# published here as GitHub releases, so there is no toolchain to build.
+# This check gives PRs a required-status-check anchor and sanity-checks
+# anything that lands on main.
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Sanity-check repo contents
+        run: |
+          set -euo pipefail
+          test -s README.md
+          shopt -s globstar nullglob
+          for f in **/*.sh; do bash -n "$f"; done
